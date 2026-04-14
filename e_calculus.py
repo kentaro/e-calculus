@@ -407,6 +407,18 @@ def make_builtins() -> dict:
     env["left"] = VBuiltin("left", lambda t: t.children[0] if isinstance(t, VTree) and t.tag == "node" else (_ for _ in ()).throw(TypeError("not a node")))
     env["right"] = VBuiltin("right", lambda t: t.children[1] if isinstance(t, VTree) and t.tag == "node" else (_ for _ in ()).throw(TypeError("not a node")))
 
+    # Numeric helpers
+    env["round"] = VBuiltin("round", lambda a: VNum(round(a.value)))
+    env["floor"] = VBuiltin("floor", lambda a: VNum(math.floor(a.value)))
+    env["mod"] = VBuiltin("mod", lambda a, b: VNum(a.value % b.value))
+
+    # Character / string
+    env["chr"] = VBuiltin("chr", lambda a: VStr(chr(int(a.value))))
+    env["ord"] = VBuiltin("ord", lambda a: VNum(float(ord(a.value[0]))) if isinstance(a, VStr) else VNum(float(ord(str(a.value)[0]))))
+    env["str-join"] = VBuiltin("str-join", lambda *args: VStr("".join(
+        a.value if isinstance(a, VStr) else repr(a) for a in args)))
+    env["display"] = VBuiltin("display", _display)
+
     # IO
     env["print"] = VBuiltin("print", _print)
     env["tree-depth"] = VBuiltin("tree-depth", _tree_depth)
@@ -420,6 +432,12 @@ def _val(v: Value) -> float:
     if isinstance(v, VTree):
         return 1.0 if v.tag == "leaf" else 0.0
     return 0.0
+
+
+def _display(*args: Value) -> Value:
+    """Print without spaces or newline quoting — for string output."""
+    print("".join(a.value if isinstance(a, VStr) else repr(a) for a in args))
+    return args[0] if args else VNum(0)
 
 
 def _print(*args: Value) -> Value:
