@@ -151,44 +151,40 @@ Requires Python 3.11+. No dependencies.
 
 ### Hello, World!
 
-Every character is derived from `e = E(1, 1)`. No numeric literal other than `1` appears:
+Every character is a **pure E-tree** — only `E` and `1`, no arithmetic, no numeric literals. Each tree was found by exhaustive search over E-expressions up to depth 6:
 
 ```scheme
-(def e (E 1 1))                  ; e ≈ 2.718
+; The message is a linked list of quoted E-trees.
+; Each character is a pure E-expression that evaluates
+; to (approximately) the ASCII code of that character.
 
-; Building blocks — all derived from e
-(def r3  (round e))              ; 3  = round(e)
-(def r7  (round (* e e)))        ; 7  = round(e²)
-(def r15 (round (E (E 1 1) 1)))  ; 15 = round(e^e)
-(def r20 (round (* e (* e e))))  ; 20 = round(e³)
+(def msg
+  (node
+    '(E (E (E (E 1 (E (E 1 1) 1)) (E 1 (E 1 1)))   ; H = 72 ≈ 72.04
+        (E 1 (E (E 1 1) (E 1 1))))
+        (E (E 1 (E (E 1 1) 1)) (E 1 (E 1 1))))
+  (node
+    '(E (E (E 1 (E 1 1)) (E 1 1))                    ; e = 101 ≈ 100.89
+        (E (E 1 (E (E 1 1) (E 1 1)))
+           (E (E 1 (E 1 1)) (E (E 1 1) 1))))
+  ; ... (l, l, o, ',', ' ', W, o, r, l, d, !)
+  ; See examples/hello.e for the full program
+  leaf)))
 
-; Small numbers — derived from r3 and the constant 1
-(def two  (- r3 1))              ; 2 = 3 - 1
-(def four (+ r3 1))              ; 4 = 3 + 1
-(def five (+ r3 two))            ; 5 = 3 + 2
-(def six  (* r3 two))            ; 6 = 3 * 2
-(def nine (* r3 r3))             ; 9 = 3 * 3
-
-(def E-char (fn (n) (chr (round n))))
-
-(display
-  (E-char (* r3 (+ r20 four)))        ; H  = 3 * 24   = 72
-  (E-char (- (* r15 r7) four))        ; e  = 105 - 4  = 101
-  (E-char (+ (* r15 r7) r3))          ; l  = 105 + 3  = 108
-  (E-char (+ (* r15 r7) r3))          ; l  = 108
-  (E-char (+ (* r15 r7) six))         ; o  = 105 + 6  = 111
-  (E-char (- (* r7 r7) five))         ; ,  = 49 - 5   = 44
-  (E-char (* (* four four) two))       ; SP = 16 * 2   = 32
-  (E-char (* r3 (+ r20 (+ r7 two))))  ; W  = 3 * 29   = 87
-  (E-char (+ (* r15 r7) six))         ; o  = 111
-  (E-char (+ (* r15 r7) nine))        ; r  = 105 + 9  = 114
-  (E-char (+ (* r15 r7) r3))          ; l  = 108
-  (E-char (- (* r15 r7) five))        ; d  = 105 - 5  = 100
-  (E-char (+ r20 (+ r7 six))))        ; !  = 20 + 13  = 33
+; Decode: match walks the list, eval recovers each character
+(letrec ((decode (fn (tree)
+  (match tree
+    ""
+    (fn (char-tree rest)
+      (str-join (chr (round (eval char-tree)))
+                (decode rest)))))))
+  (display (decode msg)))
 ; => Hello, World!
 ```
 
-Four numbers — 3, 7, 15, 20 — all born from `E(1, 1)`, are enough to reach every ASCII character. Every other number is built from these and `1`.
+The key: each character **is** a quoted E-expression. `eval` collapses it back to a number. This is homoiconicity in action — the data is code, and `eval` gives it meaning.
+
+No `+`, no `*`, no `round(e)`. Just `E`, `1`, `quote`, `match`, and `eval`.
 
 ## Architecture
 
