@@ -10,7 +10,7 @@ and the constant `1`.
 
 ## Origin
 
-A [physicist's paper](https://x.com/prywatnik/status/2043943516858986571) showed that all elementary mathematical functions — sin, cos, ln, √, π — can be expressed by nesting one operator `E(x, y) = exp(x) - ln(y)` with the constant `1`. Theoretically beautiful, practically absurd: expressing π requires dozens of nested E's.
+A paper by Łukasz Graczykowski and Maciej Jałocha, ["All elementary functions from a single binary operator"](https://arxiv.org/abs/2603.21852v2) ([PDF](https://arxiv.org/pdf/2603.21852v2), [HTML](https://arxiv.org/html/2603.21852v2)), showed that all elementary mathematical functions — sin, cos, ln, √, π — can be expressed by nesting one operator `E(x, y) = exp(x) - ln(y)` with the constant `1`. Theoretically beautiful, practically absurd: expressing π requires dozens of nested E's. (Also discussed in [this X post](https://x.com/prywatnik/status/2043943516858986571).)
 
 This project takes the idea in a different direction. Instead of just computing numbers, what if we turned E-expressions into a _programming language_?
 
